@@ -5,13 +5,13 @@
   imageLoader.addEventListener('change', handleImage, false);
   var canvas = document.querySelector('#image');
   var ctx = canvas.getContext('2d');
-  var w = new Worker('scripts/worker.js');
+  var imageWorker = new Worker('scripts/worker.js');
 
   function handleImage(e){
     var reader = new FileReader();
     reader.onload = function(event){
       var img = new Image();
-      img.onload = function(){ //this is the culprit
+      img.onload = function(){ 
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img,0,0);
@@ -41,9 +41,12 @@
 
     toggleButtonsAbledness();
     var manipulateImageData = w.postMessage({'imageData':imageData,'type':type});
-    w.onmessage = function(e){
+    imageWorker.onmessage = function(e){
       toggleButtonsAbledness();
-      return ctx.putImageData(e.data, 0, 0);
+      var manImage = e.data;
+      if(manImage) { 
+        return ctx.putImageData(e.data, 0, 0);
+      }
     }
   };
 
